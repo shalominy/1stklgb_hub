@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.15.0
-  firebase_auth: ^4.7.3
+  firebase_auth: ^4.17.4
   cloud_firestore: ^4.9.3
   firebase_storage: ^11.2.8
   provider: ^6.1.1
@@ -62,6 +62,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/images/1stKLGB_Logo.png
+    - assets/images/GB_Crest.png
+    - assets/images/Landing_Page.JPG
 
   # To add assets to your application, add an assets section, like this:
   # assets:

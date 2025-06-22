@@ -1,6 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/landing_page.dart';
+import 'pages/login_page.dart';
+import 'pages/signup_page.dart';
+// import 'pages/forgot_password_page.dart'; // Optional
+// import 'pages/dashboard_page.dart'; // Optional
+import 'theme/app_theme.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -23,10 +30,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: '1stKLGB Hub',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Welcome')),
-        body: const Center(child: Text('Hello from 1stKLGB')),
-      ),
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LandingPage(),
+        '/login': (context) => const LoginPage(),
+        '/signup': (context) => const SignUpPage(),
+        // '/forgot_password': (context) => const ForgotPasswordPage(),
+        // '/dashboard': (context) => const DashboardPage(),
+      },
     );
   }
 }
