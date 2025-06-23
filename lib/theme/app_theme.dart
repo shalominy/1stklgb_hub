@@ -5,6 +5,8 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   static const Color darkBlue = Color(0xFF201e76);
   static const Color blue = Color(0xFF4348b2);
+  static const Color sidebarBackground = AppColors.darkBlue; // Optional alias
+  static const Color iconWhite = AppColors.white;
 }
 
 class AppTextStyles {
@@ -36,6 +38,12 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w800,
     color: AppColors.black,
+  );
+
+  static const TextStyle titleWhite = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w800,
+    color: AppColors.white,
   );
 
   static const TextStyle paragraph = TextStyle(

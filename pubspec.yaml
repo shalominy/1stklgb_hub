@@ -67,6 +67,9 @@ flutter:
     - assets/images/1stKLGB_Logo.png
     - assets/images/GB_Crest.png
     - assets/images/Landing_Page.JPG
+    - assets/images/Member_Icon.png
+    - assets/images/Officer_Icon.png
+    - assets/images/1stKLGB_Logo_White.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

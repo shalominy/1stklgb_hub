@@ -26,8 +26,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final credential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
+        final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
@@ -43,7 +42,20 @@ class _SignUpPageState extends State<SignUpPage> {
         });
 
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/dashboard');
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sign up successful! Redirecting...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Small delay so the user sees the message before navigation
+        await Future.delayed(const Duration(seconds: 1));
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/login');
       } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? 'Sign up failed')),

@@ -167,10 +167,14 @@ class _LoginPageState extends State<LoginPage> {
                           email: email,
                           password: password,
                         );
+                        
+                        // Check before using context
+                        if (!mounted) return;
 
                         // Navigate to dashboard or home page
                         Navigator.pushNamed(context, '/dashboard');
                       } on FirebaseAuthException catch (e) {
+                        if (!mounted) return;
                         String message;
                         if (e.code == 'user-not-found') {
                           message = 'No user found for that email.';
@@ -193,15 +197,29 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
 
               // Forgot Password
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, '/forgot_password');
-                },
-                child: Text(
-                  "Forgot password?",
-                  style: AppTextStyles.paragraph.copyWith(
-                    decoration: TextDecoration.underline,
-                  ),
+              FractionallySizedBox(
+                widthFactor: 0.6,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Forgot password? ", style: AppTextStyles.paragraph),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/forgot_password');
+                        },
+                        child: const Text(
+                          "Reset Here",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.darkBlue,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class LogoHeader extends StatelessWidget {
   final double imageSize;
   final double overlap;
+  final bool isWhite; // NEW: toggle for white logo version
 
   const LogoHeader({
     super.key,
     this.imageSize = 120,
-    this.overlap = 35, // amount of horizontal overlap
+    this.overlap = 35,
+    this.isWhite = false, // default is not white
   });
 
   @override
@@ -28,7 +30,9 @@ class LogoHeader extends StatelessWidget {
           Positioned(
             left: imageSize - overlap,
             child: Image.asset(
-              'assets/images/1stKLGB_Logo.png',
+              isWhite
+                  ? 'assets/images/1stKLGB_Logo_White.png'
+                  : 'assets/images/1stKLGB_Logo.png',
               width: imageSize,
               height: imageSize,
             ),

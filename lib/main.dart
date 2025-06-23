@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'pages/admin_dashboard_page.dart';
+import 'pages/forgot_password_page.dart';
 import 'pages/landing_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
-// import 'pages/forgot_password_page.dart'; // Optional
-// import 'pages/dashboard_page.dart'; // Optional
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -37,8 +37,8 @@ class MyApp extends StatelessWidget {
         '/': (context) => const LandingPage(),
         '/login': (context) => const LoginPage(),
         '/signup': (context) => const SignUpPage(),
-        // '/forgot_password': (context) => const ForgotPasswordPage(),
-        // '/dashboard': (context) => const DashboardPage(),
+        '/forgot_password': (context) => const ForgotPasswordPage(),
+        '/dashboard': (context) => const AdminDashboardPage(),
       },
     );
   }
