@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'pages/admin_dashboard_page.dart';
 import 'pages/forgot_password_page.dart';
@@ -10,14 +11,16 @@ import 'theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(); // Load .env
+
   await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyAS4AGzlFq2MIOIXs8PXrcmZFJJqqCH96s",
-      authDomain: "firstklgb-hub.firebaseapp.com",
-      projectId: "firstklgb-hub",
-      storageBucket: "firstklgb-hub.appspot.com",
-      messagingSenderId: "203576587844",
-      appId: "1:203576587844:web:8b01627970249e4e736e11",
+    options: FirebaseOptions(
+      apiKey: dotenv.env['API_KEY']!,
+      authDomain: dotenv.env['AUTH_DOMAIN']!,
+      projectId: dotenv.env['PROJECT_ID']!,
+      storageBucket: dotenv.env['STORAGE_BUCKET']!,
+      messagingSenderId: dotenv.env['MESSAGING_SENDER_ID']!,
+      appId: dotenv.env['APP_ID']!,
     ),
   );
   runApp(const MyApp());
