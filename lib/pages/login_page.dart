@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -163,16 +164,53 @@ class _LoginPageState extends State<LoginPage> {
                         final email = _emailController.text.trim();
                         final password = _passwordController.text;
 
-                        await FirebaseAuth.instance.signInWithEmailAndPassword(
-                          email: email,
-                          password: password,
-                        );
-                        
-                        // Check before using context
+                        final userCredential = await FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: email, password: password);
+
+                        final uid = userCredential.user?.uid;
+                        if (uid == null) {
+                          throw FirebaseAuthException(
+                              code: 'no-uid', message: 'User ID not found');
+                        }
+
+                        final userDoc = await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(uid)
+                            .get();
+                        final userData = userDoc.data();
+
                         if (!mounted) return;
 
-                        // Navigate to dashboard or home page
-                        Navigator.pushNamed(context, '/dashboard');
+                        if (userData != null) {
+                          final role = userData['role'];
+                          final hasSubmittedForm =
+                              userData['membershipFormSubmitted'] == true;
+
+                          if (!hasSubmittedForm) {
+                            Navigator.pushReplacementNamed(
+                                context, '/membership_form');
+                            return;
+                          }
+
+                          if (role == 'Admin') {
+                            Navigator.pushReplacementNamed(
+                                context, '/admin_dashboard');
+                          } else if (role == 'Officer') {
+                            Navigator.pushReplacementNamed(
+                                context, '/officer_dashboard');
+                          } else if (role == 'Squad Leader') {
+                            Navigator.pushReplacementNamed(
+                                context, '/squad_leader_dashboard');
+                          } else {
+                            Navigator.pushReplacementNamed(context, '/');
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('User data not found.')),
+                          );
+                        }
                       } on FirebaseAuthException catch (e) {
                         if (!mounted) return;
                         String message;
@@ -181,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                         } else if (e.code == 'wrong-password') {
                           message = 'Incorrect password.';
                         } else {
-                        message = 'Login failed. Please try again.';
+                          message = 'Login failed. Please try again.';
                         }
 
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -202,7 +240,8 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Forgot password? ", style: AppTextStyles.paragraph),
+                    const Text("Forgot password? ",
+                        style: AppTextStyles.paragraph),
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(

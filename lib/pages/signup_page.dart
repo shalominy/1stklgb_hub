@@ -38,12 +38,12 @@ class _SignUpPageState extends State<SignUpPage> {
           'name': _nameController.text.trim(),
           'role': _selectedRole,
           'email': _emailController.text.trim(),
+          'membershipFormSubmitted': false, // added here
           'createdAt': Timestamp.now(),
         });
 
         if (!mounted) return;
 
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Sign up successful! Redirecting...'),
@@ -51,9 +51,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
         );
 
-        // Small delay so the user sees the message before navigation
         await Future.delayed(const Duration(seconds: 1));
-
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/login');
       } on FirebaseAuthException catch (e) {
@@ -141,7 +139,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           DropdownMenuItem(
                               value: 'Girl/Parent', child: Text("Girl/Parent")),
                           DropdownMenuItem(
-                              value: 'Young Leader', child: Text("Young Leader")),
+                              value: 'Squad Leader', child: Text("Squad Leader")),
                           DropdownMenuItem(
                               value: 'Officer', child: Text("Officer")),
                         ],
