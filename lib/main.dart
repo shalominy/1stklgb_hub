@@ -7,6 +7,7 @@ import 'pages/landing_page.dart';
 import 'pages/login_page.dart';
 import 'pages/membership_form_page.dart';
 import 'pages/officer_dashboard_page.dart';
+import 'pages/sectional_attendance_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/squad_leader_dashboard_page.dart';
 import 'theme/app_theme.dart';
@@ -19,7 +20,7 @@ void main() async {
       apiKey: "AIzaSyAS4AGzlFq2MIOIXs8PXrcmZFJJqqCH96s",
       authDomain: "firstklgb-hub.firebaseapp.com",
       projectId: "firstklgb-hub",
-      storageBucket: "firstklgb-hub.appspot.com",
+      storageBucket: "firstklgb-hub.firebasestorage.app",
       messagingSenderId: "203576587844",
       appId: "1:203576587844:web:8b01627970249e4e736e11",
     ),
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
         '/officer_dashboard': (context) => const OfficerDashboardPage(),
         '/squad_leader_dashboard': (context) => const SquadLeaderDashboardPage(),
         '/membership_form': (context) => const MembershipFormPage(),
+        '/sectional_attendance': (context) => const SectionalAttendancePage(),
       },
     );
   }

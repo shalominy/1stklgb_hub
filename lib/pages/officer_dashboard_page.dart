@@ -58,7 +58,23 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                 const SizedBox(height: 32),
                 _navItem(Icons.dashboard, 'Dashboard'),
                 _navItem(Icons.groups, 'Squad'),
-                _navItem(Icons.check_circle, 'Attendance'),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/sectional_attendance');
+                  },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: 12),
+                      Text('Sectional Attendance',
+                          style: AppTextStyles.title.copyWith(color: Colors.white)),
+                    ],
+                  ),
+                ),
+                ),
+
                 _navItem(Icons.announcement, 'Announcements'),
                 _navItem(Icons.calendar_today, 'Calendar'),
                 _navItem(Icons.emoji_events, 'Awards'),
@@ -154,7 +170,9 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                         _dashboardPreviewTile(
                           icon: Icons.check_circle,
                           title: 'Attendance',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/sectional_attendance');
+                          },
                         ),
                         _dashboardPreviewTile(
                           icon: Icons.calendar_today,
