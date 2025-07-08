@@ -57,35 +57,136 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                 ),
                 const SizedBox(height: 32),
                 _navItem(Icons.dashboard, 'Dashboard'),
-                _navItem(Icons.groups, 'Squad'),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/squad_assignment');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.groups, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Squad Assignment', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/recruit_attendance');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.checklist_rtl, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Recruit Attendance',
+                        style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
                 InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, '/sectional_attendance');
                   },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.white),
-                      const SizedBox(width: 12),
-                      Text('Sectional Attendance',
-                          style: AppTextStyles.title.copyWith(color: Colors.white)),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Sectional Attendance', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
                   ),
                 ),
-                ),
 
-                _navItem(Icons.announcement, 'Announcements'),
-                _navItem(Icons.calendar_today, 'Calendar'),
-                _navItem(Icons.emoji_events, 'Awards'),
-                _navItem(Icons.upgrade, 'Promotions'),
-                _navItem(Icons.school, 'Sectional Planning'),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/announcement_editor');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.announcement, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Announcements', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/annual_calendar_overview');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Annual Calendar', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/award');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.emoji_events, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Awards', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/promotion');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Promotions', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/sectional_planning_form');
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.edit, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text('Sectional Planning', style: AppTextStyles.title.copyWith(color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                ),
                 const Spacer(),
                 _navItemWithDropdown(
                   icon: Icons.person,
                   label: 'Profile',
                   dropdownItems: [
-                    _dropdownItem(Icons.edit, 'Edit Profile', () {}),
+                    _dropdownItem(Icons.edit, 'Edit Profile', () {
+                      Navigator.pushNamed(context, '/profile');
+                    }),
                     _dropdownItem(Icons.logout, 'Log Out', () {
                       FirebaseAuth.instance.signOut();
                       Navigator.pushNamedAndRemoveUntil(
@@ -117,7 +218,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                           offset: const Offset(0, 50),
                           onSelected: (value) {
                             if (value == 'edit') {
-                              // TODO: Navigate to edit profile
+                              Navigator.pushNamed(context, '/profile');
                             } else if (value == 'logout') {
                               FirebaseAuth.instance.signOut();
                               Navigator.pushNamedAndRemoveUntil(
@@ -169,7 +270,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                       children: [
                         _dashboardPreviewTile(
                           icon: Icons.check_circle,
-                          title: 'Attendance',
+                          title: 'Sectional Attendance',
                           onTap: () {
                             Navigator.pushNamed(context, '/sectional_attendance');
                           },
@@ -182,7 +283,9 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                         _dashboardPreviewTile(
                           icon: Icons.school,
                           title: 'Sectional Planning',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/sectional_planning_form');
+                          },
                         ),
                       ],
                     ),

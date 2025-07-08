@@ -1,28 +1,19 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/logo_header.dart';
 
-class SquadLeaderDashboardPage extends StatefulWidget {
-  const SquadLeaderDashboardPage({super.key});
+class GirlParentDashboardPage extends StatefulWidget {
+  const GirlParentDashboardPage({super.key});
 
   @override
-  State<SquadLeaderDashboardPage> createState() => _SquadLeaderDashboardPageState();
+  State<GirlParentDashboardPage> createState() => _GirlParentDashboardPageState();
 }
 
-class _SquadLeaderDashboardPageState extends State<SquadLeaderDashboardPage> {
-  String userName = "Squad Leader";
-  final List<String> squads = [
-    'Squad Faith',
-    'Squad Righteousness',
-    'Squad Salvation',
-    'Squad Truth',
-    'Squad Peace',
-  ];
+class _GirlParentDashboardPageState extends State<GirlParentDashboardPage> {
+  String userName = "Welcome";
 
   @override
   void initState() {
@@ -41,22 +32,6 @@ class _SquadLeaderDashboardPageState extends State<SquadLeaderDashboardPage> {
         });
       }
     }
-  }
-
-  Future<int> _fetchTodaySquadAttendanceCount() async {
-    final formattedToday = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    int total = 0;
-
-    for (final squad in squads) {
-      final count = await FirebaseFirestore.instance
-          .collection('squad_attendance')
-          .doc(formattedToday)
-          .collection(squad)
-          .get();
-      total += count.docs.length;
-    }
-
-    return total;
   }
 
   @override
@@ -84,10 +59,7 @@ class _SquadLeaderDashboardPageState extends State<SquadLeaderDashboardPage> {
                 ),
                 const SizedBox(height: 12),
                 _navItem(Icons.dashboard, 'Dashboard', () {
-                  Navigator.pushNamed(context, '/squad_leader_dashboard');
-                }),
-                _navItem(Icons.check_circle, 'Squad Attendance', () {
-                  Navigator.pushNamed(context, '/squad_attendance');
+                  Navigator.pushNamed(context, '/girl_parent_dashboard');
                 }),
                 _navItem(Icons.campaign, 'Announcements', () {
                   Navigator.pushNamed(context, '/announcement');
@@ -178,16 +150,8 @@ class _SquadLeaderDashboardPageState extends State<SquadLeaderDashboardPage> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 24,
                       crossAxisSpacing: 24,
-                      children: [
-                        _dashboardPreviewTile(
-                          icon: Icons.check_circle,
-                          title: 'Squad Attendance',
-                          subtitleFuture: _fetchTodaySquadAttendanceCount().then((count) =>
-                              "Today: $count marked"),
-                          onTap: () {
-                            Navigator.pushNamed(context, '/squad_attendance');
-                          },
-                        ),
+                      children: const [
+                        // Add future dashboard preview tiles here if needed
                       ],
                     ),
                   ),
@@ -251,47 +215,6 @@ class _SquadLeaderDashboardPageState extends State<SquadLeaderDashboardPage> {
           Text(label),
         ],
       ),
-    );
-  }
-
-  Widget _dashboardPreviewTile({
-    required IconData icon,
-    required String title,
-    required Future<String> subtitleFuture,
-    required VoidCallback onTap,
-  }) {
-    return FutureBuilder<String>(
-      future: subtitleFuture,
-      builder: (context, snapshot) {
-        final subtitle = snapshot.data ?? "Loading...";
-        return InkWell(
-          onTap: onTap,
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(icon, size: 40, color: AppColors.blue),
-                const SizedBox(height: 16),
-                Text(title, style: AppTextStyles.heading3),
-                const SizedBox(height: 4),
-                Text(subtitle, style: AppTextStyles.paragraph),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 }

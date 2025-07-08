@@ -7,6 +7,7 @@ class AppColors {
   static const Color blue = Color(0xFF4348b2);
   static const Color sidebarBackground = AppColors.darkBlue; // Optional alias
   static const Color iconWhite = AppColors.white;
+  static const Color lightGrey = Color(0xFFF5F5F5); // Light neutral grey for backgrounds
 }
 
 class AppTextStyles {
@@ -44,6 +45,11 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w800,
     color: AppColors.white,
+  );
+
+  static const TextStyle field = TextStyle(
+    fontSize: 16,
+    color: AppColors.black,
   );
 
   static const TextStyle paragraph = TextStyle(

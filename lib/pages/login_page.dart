@@ -203,7 +203,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.pushReplacementNamed(
                                 context, '/squad_leader_dashboard');
                           } else {
-                            Navigator.pushReplacementNamed(context, '/');
+                            Navigator.pushReplacementNamed(context, '/girl_parent_dashboard');
                           }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
