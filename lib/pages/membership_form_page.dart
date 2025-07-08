@@ -222,7 +222,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
       } else if (role == 'Squad Leader') {
         Navigator.pushReplacementNamed(context, '/squad_leader_dashboard');
       } else {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/girl_parent_dashboard');
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

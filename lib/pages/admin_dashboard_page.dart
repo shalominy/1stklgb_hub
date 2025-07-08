@@ -62,9 +62,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                 const SizedBox(height: 12),
 
-                _navItem(Icons.dashboard, 'Dashboard'),
-                _navItem(Icons.people, 'Users List'),
-                _navItem(Icons.article, 'Membership Forms'),
+                _navItem(Icons.dashboard, 'Dashboard', () {
+                  Navigator.pushNamed(context, '/admin_dashboard');
+                }),
+                //_navItem(Icons.people, 'Users List'),
 
                 const Spacer(),
 
@@ -72,7 +73,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   icon: Icons.person,
                   label: 'Profile',
                   dropdownItems: [
-                    _dropdownItem(Icons.edit, 'Edit Profile', () {}),
+                    _dropdownItem(Icons.edit, 'Edit Profile', () {
+                      Navigator.pushNamed(context, '/profile');
+                    }),
                     _dropdownItem(Icons.logout, 'Log Out', () {
                       FirebaseAuth.instance.signOut();
                       Navigator.pushNamedAndRemoveUntil(
@@ -179,11 +182,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   /// SIDEBAR NAV ITEM
-  Widget _navItem(IconData icon, String label) {
+  Widget _navItem(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
-      onTap: () {
-        // TODO: handle navigation
-      },
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(

@@ -56,7 +56,9 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _navItem(Icons.dashboard, 'Dashboard'),
+                _navItem(Icons.dashboard, 'Dashboard', () {
+                  Navigator.pushNamed(context, '/officer_dashboard');
+                }),
                 InkWell(
                   onTap: () {
                     Navigator.pushNamed(context, '/squad_assignment');
@@ -299,11 +301,9 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     );
   }
 
-  Widget _navItem(IconData icon, String label) {
+  Widget _navItem(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
-      onTap: () {
-        // TODO: Handle navigation
-      },
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
