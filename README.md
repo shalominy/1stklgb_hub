@@ -41,7 +41,7 @@ lib/
 
 | Role | Access Rights |
 |------|----------------|
-| **Admin/Officer** | Full CRUD access to members, awards, announcements, and calendar |
+| **Officer** | Full CRUD access to members, awards, announcements, and calendar |
 | **Squad Leader** | Attendance marking, viewing schedules & announcements |
 | **Girl/Parent** | Read-only access to calendar, awards, and announcements |
 
