@@ -1,4 +1,6 @@
-import 'dart:html' as html; // For Flutter Web file picker
+// Provides a form interface for officers to create new announcements.
+// Includes file upload, date selection, and integration with Firestore and Firebase Storage.
+import 'dart:html' as html; // Used for file picker on Flutter Web
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,17 +19,23 @@ class AnnouncementEditorPage extends StatefulWidget {
 
 class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
   final _formKey = GlobalKey<FormState>();
+
+  // Form controllers
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _linkController = TextEditingController();
+
+  // Date fields
   DateTime? _date;
   DateTime? _dueDate;
   DateTimeRange? _dateRange;
 
+  // File attachment
   html.File? _attachment;
   String? _attachmentName;
   bool _isUploading = false;
 
+  // File picker for Flutter Web
   Future<void> _pickAttachment() async {
     final uploadInput = html.FileUploadInputElement()
       ..accept = '.pdf,image/*,video/*,.doc,.docx,.ppt,.pptx,.gif'
@@ -42,6 +50,7 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
     });
   }
 
+  // Upload selected file to Firebase Storage and return the download URL
   Future<String?> _uploadAttachment() async {
     if (_attachment == null) return null;
 
@@ -55,6 +64,7 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
     return await uploadTask.ref.getDownloadURL();
   }
 
+  // Submit the announcement form and upload data to Firestore
   Future<void> _submitAnnouncement() async {
     if (!_formKey.currentState!.validate() || _date == null) return;
 
@@ -85,6 +95,7 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
       appBar: AppBar(
         title: const Text("Create New Announcement"),
         actions: [
+          // Navigate to past announcements list
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: TextButton.icon(
@@ -106,12 +117,16 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
             children: [
               Text("Announcement Details", style: AppTextStyles.heading2),
               const SizedBox(height: 16),
+
+              // Title input
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(labelText: 'Title *'),
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
+
+              // Description input
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 4,
@@ -119,11 +134,15 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
                 validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
+
+              // Optional link input
               TextFormField(
                 controller: _linkController,
                 decoration: const InputDecoration(labelText: 'Link (optional)'),
               ),
               const SizedBox(height: 12),
+
+              // Select main date
               ListTile(
                 title: Text(_date != null ? 'Date: ${DateFormat('dd/MM/yy').format(_date!)}' : 'Select Date *'),
                 trailing: const Icon(Icons.calendar_today),
@@ -137,6 +156,8 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
                   if (picked != null) setState(() => _date = picked);
                 },
               ),
+
+              // Select due date (optional)
               ListTile(
                 title: Text(_dueDate != null ? 'Due Date: ${DateFormat('dd/MM/yy').format(_dueDate!)}' : 'Select Due Date (optional)'),
                 trailing: const Icon(Icons.calendar_today),
@@ -150,6 +171,8 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
                   if (picked != null) setState(() => _dueDate = picked);
                 },
               ),
+
+              // Select date range (optional)
               ListTile(
                 title: Text(
                   _dateRange != null
@@ -167,12 +190,16 @@ class _AnnouncementEditorPageState extends State<AnnouncementEditorPage> {
                 },
               ),
               const SizedBox(height: 12),
+
+              // File attachment button
               OutlinedButton.icon(
                 onPressed: _pickAttachment,
                 icon: const Icon(Icons.attach_file),
                 label: Text(_attachmentName ?? 'Attach File (optional)'),
               ),
               const SizedBox(height: 24),
+
+              // Submit button or loading indicator
               _isUploading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(

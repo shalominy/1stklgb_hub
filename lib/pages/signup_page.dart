@@ -1,3 +1,4 @@
+// Import necessary Firebase and Flutter packages
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,24 +14,31 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  // Form key to manage validation
   final _formKey = GlobalKey<FormState>();
 
+  // Text controllers for each input field
   final _nameController = TextEditingController();
   String? _selectedRole;
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  // Toggles for password visibility
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // Handles sign-up logic using Firebase Authentication and Firestore
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       try {
+        // Create user with email and password
         final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
+        // Store user profile data in Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(credential.user!.uid)
@@ -44,6 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
         if (!mounted) return;
 
+        // Notify user and redirect to login
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Sign up successful! Redirecting...'),
@@ -55,6 +64,7 @@ class _SignUpPageState extends State<SignUpPage> {
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/login');
       } on FirebaseAuthException catch (e) {
+        // Display error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(e.message ?? 'Sign up failed')),
         );
@@ -62,6 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  // Validates password rules
   String? _validatePassword(String? value) {
     final password = value ?? '';
     if (password.isEmpty) return 'Please enter your password';
@@ -97,7 +108,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const Text("Welcome!", style: AppTextStyles.heading2),
                 const SizedBox(height: 24),
 
-                // Name
+                // Name Field
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Column(
@@ -120,7 +131,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Role
+                // Role Dropdown
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Column(
@@ -152,7 +163,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Email
+                // Email Field
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Column(
@@ -180,7 +191,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password
+                // Password Field
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Column(
@@ -216,7 +227,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Confirm Password
+                // Confirm Password Field
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Column(
@@ -255,7 +266,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
                 const SizedBox(height: 32),
 
-                // SIGN UP Button
+                // Sign Up Button
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: ElevatedButton(
@@ -265,7 +276,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 const SizedBox(height: 24),
 
-                // Already have an account
+                // Redirect to Login
                 FractionallySizedBox(
                   widthFactor: 0.6,
                   child: Center(

@@ -1,5 +1,3 @@
-
-// ✅ Final - Squad Assignment Page with Enhanced Table Format
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -15,20 +13,24 @@ class SquadAssignmentPage extends StatefulWidget {
 class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Predefined list of squad names
   final List<String> squads = ['Faith', 'Peace', 'Righteousness', 'Salvation', 'Truth'];
-  Map<String, Map<String, dynamic>> summary = {};
-  Map<String, dynamic> recruits = {};
-  Map<String, int> attendanceCount = {};
-  Map<String, String?> selectedSquad = {};
+  
+  // Squad summary data, unassigned recruits, and tracking of changes
+  Map<String, Map<String, dynamic>> summary = {};     // Squad stats: section counts, leaders
+  Map<String, dynamic> recruits = {};                 // Recruits needing squad assignment
+  Map<String, int> attendanceCount = {};              // Recruit attendance record count
+  Map<String, String?> selectedSquad = {};            // Selected assignment per recruit
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _ensureSquadsExist();
-    _loadData();
+    _ensureSquadsExist(); // Make sure squads are initialized in Firestore
+    _loadData();          // Load all users and squad details
   }
 
+  /// Load squad summaries and identify unassigned recruits
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     summary.clear();
@@ -36,6 +38,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
     attendanceCount.clear();
     selectedSquad.clear();
 
+    // Initialise squad summary structure
     for (final squad in squads) {
       summary[squad] = {
         'cadet': 0,
@@ -48,6 +51,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
       };
     }
 
+    // Get current squad leader and assistant info
     final squadDocs = await _firestore.collection('squads').get();
     for (var doc in squadDocs.docs) {
       final data = doc.data();
@@ -58,6 +62,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
       }
     }
 
+    // Get all Girl/Parent users and classify them
     final usersSnapshot = await _firestore.collection('users').where('role', isEqualTo: 'Girl/Parent').get();
     for (var doc in usersSnapshot.docs) {
       final uid = doc.id;
@@ -69,11 +74,13 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
       final section = form['section'] ?? '-';
       final age = form['age']?.toString() ?? '-';
 
+      // Count weekly attendance (for recruit status)
       final attSnap = await _firestore.collection('recruit_attendance').doc(uid).get();
       final att = List<String>.from(attSnap.data()?['records'] ?? []);
       final count = att.length;
 
       if (squad != null && squad != '') {
+        // Update existing squad summary
         summary[squad]?['total'] = (summary[squad]?['total'] ?? 0) + 1;
         switch (section) {
           case 'Cadet (6-9 years old)':
@@ -90,6 +97,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
             break;
         }
       } else {
+        // Mark as unassigned recruit
         recruits[uid] = {
           'name': name,
           'section': section,
@@ -102,14 +110,16 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
     setState(() => _isLoading = false);
   }
 
+  /// Assign selected squad to a user and update Firestore
   Future<void> _assignSquad(String uid, String? squad) async {
     await _firestore.collection('users').doc(uid).update({'squad': squad});
     setState(() {
       selectedSquad.remove(uid);
     });
-    _loadData();
+    _loadData(); // Reload to refresh UI
   }
 
+  /// Render the squad summary table
   Widget _buildSquadTable() {
     return Table(
       border: TableBorder.all(),
@@ -141,6 +151,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
     );
   }
 
+  /// UI rendering for the page
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -165,7 +176,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
                 children: [
                   const Text("Squad Distribution Overview", style: AppTextStyles.heading2),
                   const SizedBox(height: 12),
-                  _buildSquadTable(),
+                  _buildSquadTable(), // Show summary table
                   const SizedBox(height: 24),
                   const Text("Recruits List", style: AppTextStyles.heading2),
                   const SizedBox(height: 12),
@@ -181,6 +192,8 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
                   ),
                   const SizedBox(height: 6),
                   const Divider(),
+
+                  /// Display list of unassigned recruits
                   Expanded(
                     child: ListView.separated(
                       itemCount: recruits.length,
@@ -195,7 +208,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
                             Expanded(flex: 3, child: Text("${r['name']}")),
                             Expanded(flex: 2, child: Text("${r['age']}")),
                             Expanded(flex: 3, child: Text("${r['section']}")),
-                            Expanded(flex: 3, child: Text("$weeks/6")),
+                            Expanded(flex: 3, child: Text("$weeks/6")), // 6 = required minimum
                             Expanded(
                               flex: 4,
                               child: DropdownButton<String>(
@@ -219,6 +232,8 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  /// Button to confirm assignment
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -235,6 +250,7 @@ class _SquadAssignmentPageState extends State<SquadAssignmentPage> {
     );
   }
 
+  /// Initialise squad docs if not already created in Firestore
   Future<void> _ensureSquadsExist() async {
     final List<String> squadNames = ['Faith', 'Peace', 'Righteousness', 'Salvation', 'Truth'];
     for (final squad in squadNames) {

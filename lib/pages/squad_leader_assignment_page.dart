@@ -1,6 +1,4 @@
-
-// squad_leader_assignment_page.dart (Corrected with Firestore docID matching)
-
+// Allows officers to assign Squad Leaders and Assistant Squad Leaders for each squad.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +20,10 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
     "Peace"
   ];
 
+  // Holds eligible squad leaders grouped by squad
   Map<String, List<Map<String, dynamic>>> squadLeaderPool = {};
+
+  // Stores selected user ID for leader and assistant per squad
   Map<String, String?> leaderSelection = {};
   Map<String, String?> assistantSelection = {};
   bool isLoading = true;
@@ -33,6 +34,7 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
     _loadSquadLeaders();
   }
 
+  // Fetch all users with 'Squad Leader' role and categorise them by squad
   Future<void> _loadSquadLeaders() async {
     try {
       final querySnapshot = await FirebaseFirestore.instance
@@ -44,10 +46,12 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
       Map<String, String?> leaderMap = {};
       Map<String, String?> assistantMap = {};
 
+      // Initialise empty lists for each squad
       for (final squad in squads) {
         membersBySquad[squad] = [];
       }
 
+      // Process each Squad Leader user
       for (var doc in querySnapshot.docs) {
         final userData = doc.data();
         final uid = doc.id;
@@ -69,6 +73,7 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
           'section': section,
         };
 
+        // Add to correct squad or all squads if unassigned
         if (squads.contains(squad)) {
           membersBySquad[squad]!.add(member);
 
@@ -96,6 +101,7 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
     }
   }
 
+  // Save the selected leaders to Firestore
   Future<void> _assignLeaders() async {
     for (final squad in squads) {
       final leaderId = leaderSelection[squad];
@@ -106,6 +112,7 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
       final assistantName = squadLeaderPool[squad]
           ?.firstWhere((m) => m['id'] == assistantId, orElse: () => {})['name'] ?? '';
 
+      // Update user documents with squad role
       if (leaderId != null) {
         await FirebaseFirestore.instance.collection('users').doc(leaderId).update({
           'squad': squad,
@@ -120,6 +127,7 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
         });
       }
 
+      // Update the squad document with leader details
       await FirebaseFirestore.instance.collection('squads').doc(squad).set({
         'leader': leaderId ?? '',
         'leaderName': leaderName,
@@ -132,9 +140,10 @@ class _SquadLeaderAssignmentPageState extends State<SquadLeaderAssignmentPage> {
       const SnackBar(content: Text('Squad Leaders Assigned Successfully')),
     );
 
-    _loadSquadLeaders();
+    _loadSquadLeaders();  // Reload after saving
   }
 
+  // Build dropdown UI for each squad
   Widget _buildSquadAssignmentCard(String squad) {
     final members = squadLeaderPool[squad] ?? [];
 

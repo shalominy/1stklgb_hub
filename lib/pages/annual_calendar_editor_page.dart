@@ -1,3 +1,5 @@
+// Allows officers to add or edit a meeting in the annual calendar.
+// Supports date selection, activity input, attire dropdown, and remarks.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -5,7 +7,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_theme.dart';
 
 class AnnualCalendarEditorPage extends StatefulWidget {
-  final String? meetingId;
+  final String? meetingId;  // ID for editing an existing meeting (null for new)
   const AnnualCalendarEditorPage({super.key, this.meetingId});
 
   @override
@@ -34,6 +36,7 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
     }
   }
 
+  // Load data for editing from Firestore
   Future<void> _loadMeetingData(String id) async {
     try {
       final doc = await FirebaseFirestore.instance.collection('annual_calendar').doc(id).get();
@@ -55,6 +58,7 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
     }
   }
 
+  // Submit form and save to Firestore
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _selectedDate == null) return;
 
@@ -72,8 +76,9 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
     final collection = FirebaseFirestore.instance.collection('annual_calendar');
 
     if (_isEditing) {
-      await collection.doc(widget.meetingId).update(data);
+      await collection.doc(widget.meetingId).update(data);  // Update existing
     } else {
+      // Check for duplicate date
       final existing = await collection
           .where('date', isEqualTo: _selectedDate)
           .get();
@@ -84,7 +89,7 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
         setState(() => _isLoading = false);
         return;
       }
-      await collection.add(data);
+      await collection.add(data); // Add new meeting
     }
 
     setState(() => _isLoading = false);
@@ -117,6 +122,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
             children: [
               Text("Meeting Details", style: AppTextStyles.heading2),
               const SizedBox(height: 16),
+
+              // Date selection
               ListTile(
                 title: Text(
                   _selectedDate != null
@@ -137,6 +144,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                 },
               ),
               const SizedBox(height: 12),
+
+              // Status: Meeting / No Meeting
               DropdownButtonFormField<String>(
                 value: _status,
                 decoration: const InputDecoration(labelText: 'Status *'),
@@ -149,6 +158,7 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                 onChanged: (value) {
                   setState(() {
                     _status = value ?? 'Meeting';
+                    // Adjust fields based on status
                     if (_status == 'No Meeting') {
                       _activityController.text = 'No Meeting';
                       _attireController.clear();
@@ -159,6 +169,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                 },
               ),
               const SizedBox(height: 12),
+
+              // Activity field
               TextFormField(
                 controller: _activityController,
                 decoration: const InputDecoration(labelText: 'Activity *'),
@@ -166,6 +178,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                 readOnly: _status == 'No Meeting',
               ),
               const SizedBox(height: 12),
+
+              // Attire dropdown (only for Meeting)
               if (_status == 'Meeting')
                 DropdownButtonFormField<String>(
                   value: _attireController.text.isEmpty ? null : _attireController.text,
@@ -184,6 +198,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                   validator: (value) => value == null || value.isEmpty ? 'Required' : null,
                 ),
               const SizedBox(height: 12),
+
+              // Remarks (mandatory for No Meeting)
               TextFormField(
                 controller: _remarksController,
                 decoration: const InputDecoration(labelText: 'Remarks'),
@@ -195,6 +211,8 @@ class _AnnualCalendarEditorPageState extends State<AnnualCalendarEditorPage> {
                 },
               ),
               const SizedBox(height: 24),
+
+              // Submit button or loader
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ElevatedButton(

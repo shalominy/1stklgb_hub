@@ -1,3 +1,4 @@
+// Import necessary packages for Firebase, Flutter UI, and project styling
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Form key for validation control
   final _formKey = GlobalKey<FormState>();
+
+  // Controllers to manage input fields
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  // Controls password visibility toggle
   bool _obscurePassword = true;
 
+  // Validates email format using regex
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
@@ -50,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Email
+                    // Email Field
                     FractionallySizedBox(
                       widthFactor: 0.6,
                       child: Column(
@@ -80,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 16),
 
-                    // Password
+                    // Password Field
                     FractionallySizedBox(
                       widthFactor: 0.6,
                       child: Column(
@@ -125,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 12),
 
-              // Sign Up
+              // Navigation to Sign Up Page
               FractionallySizedBox(
                 widthFactor: 0.6,
                 child: Row(
@@ -154,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
 
               const SizedBox(height: 32),
 
-              // Log In Button
+              // Log In Button and Authentication Logic
               FractionallySizedBox(
                 widthFactor: 0.6,
                 child: ElevatedButton(
@@ -164,6 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                         final email = _emailController.text.trim();
                         final password = _passwordController.text;
 
+                        // Sign in with Firebase Auth
                         final userCredential = await FirebaseAuth.instance
                             .signInWithEmailAndPassword(
                                 email: email, password: password);
@@ -174,6 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                               code: 'no-uid', message: 'User ID not found');
                         }
 
+                        // Fetch user data from Firestore
                         final userDoc = await FirebaseFirestore.instance
                             .collection('users')
                             .doc(uid)
@@ -187,12 +196,14 @@ class _LoginPageState extends State<LoginPage> {
                           final hasSubmittedForm =
                               userData['membershipFormSubmitted'] == true;
 
+                          // Redirect to membership form if not submitted
                           if (!hasSubmittedForm) {
                             Navigator.pushReplacementNamed(
                                 context, '/membership_form');
                             return;
                           }
 
+                          // Role-based redirection
                           if (role == 'Admin') {
                             Navigator.pushReplacementNamed(
                                 context, '/admin_dashboard');

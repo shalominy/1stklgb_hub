@@ -1,3 +1,6 @@
+// Displays a full overview of all meetings for the year.
+// Officers can view, edit, or add meetings to the annual calendar.
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +15,7 @@ class AnnualCalendarOverviewPage extends StatefulWidget {
 }
 
 class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage> {
+  // Map to store meetings grouped by month
   Map<DateTime, List<Map<String, dynamic>>> meetingsByMonth = {};
   bool _isLoading = true;
 
@@ -21,6 +25,7 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
     _loadMeetings();
   }
 
+  // Fetch meetings from Firestore and group them by year & month
   Future<void> _loadMeetings() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('annual_calendar')
@@ -31,7 +36,7 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
     for (var doc in snapshot.docs) {
       final data = doc.data();
       final date = (data['date'] as Timestamp).toDate();
-      final key = DateTime(date.year, date.month);
+      final key = DateTime(date.year, date.month);  // Grouping key
       grouped.putIfAbsent(key, () => []).add({
         ...data,
         'id': doc.id,
@@ -45,6 +50,7 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
     });
   }
 
+  // Show details and edit option for selected meeting
   void _showMeetingDetails(Map<String, dynamic> meeting) {
     showDialog(
       context: context,
@@ -75,7 +81,7 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
               Navigator.pushNamed(
                 context,
                 '/annual_calendar_editor',
-                arguments: meeting['id'],
+                arguments: meeting['id'], // Pass meeting ID for editing
               );
             },
             child: const Text("Edit"),
@@ -85,19 +91,23 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
     );
   }
 
+  // Build meeting cards for a specific month
   Widget _buildMonthSection(DateTime month, List<Map<String, dynamic>> meetings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Month header
         Text(DateFormat('MMMM yyyy').format(month), style: AppTextStyles.heading2),
         const SizedBox(height: 8),
+
+        // List of meetings in that month
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: meetings.map((meeting) {
             final date = meeting['date'] as DateTime;
             return GestureDetector(
-              onTap: () => _showMeetingDetails(meeting),
+              onTap: () => _showMeetingDetails(meeting), // Show detail popup
               child: Container(
                 width: 180,
                 padding: const EdgeInsets.all(12),
@@ -134,6 +144,7 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // AppBar with Add New Meeting button
       appBar: AppBar(
         title: const Text("Annual Calendar Overview"),
         actions: [
@@ -147,6 +158,8 @@ class _AnnualCalendarOverviewPageState extends State<AnnualCalendarOverviewPage>
           )
         ],
       ),
+
+      // Main body content
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(

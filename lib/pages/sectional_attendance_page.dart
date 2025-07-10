@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 
 import '../theme/app_theme.dart';
 
+// This page allows officers to mark and submit sectional attendance for all girls.
+// Users can pick a date, mark attendance via checkboxes, view full member profiles,
+// and navigate to a past attendance directory.
+
 class SectionalAttendancePage extends StatefulWidget {
   const SectionalAttendancePage({super.key});
 
@@ -12,11 +16,16 @@ class SectionalAttendancePage extends StatefulWidget {
 }
 
 class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
+  // Stores each girl's UID mapped to a boolean attendance status
   Map<String, bool> attendance = {};
+
+  // Defaults to today's date for attendance
   DateTime selectedDate = DateTime.now();
 
+  // Counts the number of users marked present
   int get totalPresent => attendance.values.where((v) => v).length;
 
+  // Opens a calendar picker to choose an attendance date
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -27,11 +36,12 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
-        attendance.clear();
+        attendance.clear(); // Reset attendance if date changes
       });
     }
   }
 
+  // Fetches list of all girls with a completed membership form (section is not null)
   Future<List<Map<String, dynamic>>> _fetchGirls() async {
     final query = await FirebaseFirestore.instance
         .collection('membership_forms')
@@ -39,11 +49,12 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
         .get();
     return query.docs.map((doc) {
       final data = doc.data();
-      data['uid'] = doc.id;
+      data['uid'] = doc.id; // Attach UID to each record
       return data;
     }).toList();
   }
 
+  // Saves attendance to Firestore under the selected date
   Future<void> _submitAttendance() async {
     final formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
     final doc = FirebaseFirestore.instance.collection('attendance').doc(formattedDate);
@@ -60,6 +71,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
     );
   }
 
+  // Displays detailed profile of the selected girl in a dialog
   void _showDetails(Map<String, dynamic> girl) {
     showDialog(
       context: context,
@@ -97,6 +109,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
     );
   }
 
+  // Navigates to the full attendance list page
   void _navigateToAttendanceDirectory() {
     Navigator.pushNamed(context, '/full_attendance_list');
   }
@@ -109,6 +122,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
       appBar: AppBar(
         title: const Text("Sectional Attendance"),
         actions: [
+          /// Button to open the full attendance record directory
           IconButton(
             icon: const Icon(Icons.folder_shared),
             tooltip: 'View Full Attendance List',
@@ -120,6 +134,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Date picker and total present counter
             Row(
               children: [
                 ElevatedButton.icon(
@@ -134,6 +149,8 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
               ],
             ),
             const SizedBox(height: 16),
+            
+            // Attendance list for each girl
             Expanded(
               child: FutureBuilder<List<Map<String, dynamic>>>(
                 future: _fetchGirls(),
@@ -152,6 +169,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
                       final section = girl['section'] ?? '-';
                       final emergencyPhone = girl['emergencyPhone'] ?? '-';
 
+                      // Initialise attendance value if not already present
                       attendance.putIfAbsent(uid, () => false);
 
                       return ListTile(
@@ -173,7 +191,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
                             });
                           },
                         ),
-                        onTap: () => _showDetails(girl),
+                        onTap: () => _showDetails(girl), // Tap to view full profile
                       );
                     },
                   );
@@ -181,6 +199,7 @@ class _SectionalAttendancePageState extends State<SectionalAttendancePage> {
               ),
             ),
             const SizedBox(height: 12),
+            // Submit attendance button
             ElevatedButton.icon(
               onPressed: _submitAttendance,
               icon: const Icon(Icons.save),

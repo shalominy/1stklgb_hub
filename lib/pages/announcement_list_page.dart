@@ -1,3 +1,5 @@
+// Displays a list of all past announcements stored in Firestore.
+// Includes clickable links, formatted dates, and optional file attachments.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,16 +10,19 @@ import '../theme/app_theme.dart';
 class AnnouncementListPage extends StatelessWidget {
   const AnnouncementListPage({super.key});
 
+  // Format Firestore Timestamp into readable date format (e.g. 10/07/25)
   String _formatDate(Timestamp? timestamp) {
     if (timestamp == null) return '-';
     return DateFormat('dd/MM/yy').format(timestamp.toDate());
   }
 
+  // Format a date range from two Timestamp values
   String _formatDateRange(Timestamp? start, Timestamp? end) {
     if (start == null || end == null) return '-';
     return '${DateFormat('dd/MM/yy').format(start.toDate())} - ${DateFormat('dd/MM/yy').format(end.toDate())}';
   }
 
+  // Open URL using device browser
   Future<void> _launchUrl(String url) async {
     final uri = Uri.tryParse(url);
     if (uri != null && await canLaunchUrl(uri)) {
@@ -32,6 +37,7 @@ class AnnouncementListPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: StreamBuilder<QuerySnapshot>(
+          // Listen to real-time updates from the 'announcements' Firestore collection
           stream: FirebaseFirestore.instance
               .collection('announcements')
               .orderBy('timestamp', descending: true)
@@ -44,6 +50,7 @@ class AnnouncementListPage extends StatelessWidget {
               return const Center(child: Text('No announcements found.'));
             }
 
+            // Display announcement cards in a ListView
             return ListView.separated(
               itemCount: announcements.length,
               separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -57,11 +64,16 @@ class AnnouncementListPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Announcement title
                         Text(data['title'] ?? '-', style: AppTextStyles.heading3),
                         const SizedBox(height: 8),
+
+                        // Description
                         Text("Description:", style: AppTextStyles.title),
                         Text(data['description'] ?? '-'),
                         const SizedBox(height: 8),
+
+                        // Optional clickable link
                         if (data['link'] != null && data['link'].toString().isNotEmpty)
                           InkWell(
                             onTap: () => _launchUrl(data['link']),
@@ -71,10 +83,14 @@ class AnnouncementListPage extends StatelessWidget {
                             ),
                           ),
                         const SizedBox(height: 8),
+
+                        // Display date, due date, and optional range
                         Text("Date: ${_formatDate(data['date'])}"),
                         Text("Due Date: ${_formatDate(data['dueDate'])}"),
                         Text("Date Range: ${_formatDateRange(data['dateRangeStart'], data['dateRangeEnd'])}"),
                         const SizedBox(height: 8),
+
+                        // Optional file attachment with download link
                         if (data['attachmentUrl'] != null)
                           Row(
                             children: [

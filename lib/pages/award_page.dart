@@ -1,3 +1,5 @@
+// Allows officers to assign Service, Core, and Elective Awards to members.
+// Supports dynamic dropdowns based on section and validates award uniqueness before submission.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -11,15 +13,18 @@ class AwardPage extends StatefulWidget {
 }
 
 class _AwardPageState extends State<AwardPage> {
+  // Selected user details
   String? _selectedUserId;
   String? _selectedUserName;
   String? _selectedSection;
   int? _selectedYear;
 
+  // Selected awards
   String? _selectedServiceAward;
   String? _selectedCoreAward;
   String? _selectedElectiveAward;
 
+  // Fetched member list and their current awards
   List<Map<String, dynamic>> _members = [];
   List<Map<String, dynamic>> _userAward = [];
 
@@ -32,6 +37,7 @@ class _AwardPageState extends State<AwardPage> {
     _fetchEligibleUsers();
   }
 
+  // Fetch eligible users (Girls or Squad Leaders) with completed membership forms
   Future<void> _fetchEligibleUsers() async {
     final userDocs = await FirebaseFirestore.instance
         .collection('users')
@@ -64,6 +70,7 @@ class _AwardPageState extends State<AwardPage> {
     });
   }
 
+  // Fetch user's existing awards from Firestore
   Future<void> _fetchUserAward() async {
     if (_selectedUserId == null) return;
     final snapshot = await FirebaseFirestore.instance
@@ -76,11 +83,13 @@ class _AwardPageState extends State<AwardPage> {
     });
   }
 
+  // Helper: Extract just the section name (e.g., Cadet) from full label
   String extractSectionName(String? fullSection) {
     if (fullSection == null) return '';
     return fullSection.split(' ').first; // Gets 'Cadet' from 'Cadet (6-9 years old)'
   }
 
+  // Get service awards by section
   List<String> getServiceAward(String section) {
     switch (extractSectionName(section)) {
       case 'Cadet':
@@ -96,6 +105,7 @@ class _AwardPageState extends State<AwardPage> {
     }
   }
 
+  // Get core awards by section
   List<String> getCoreAward(String section) {
     switch (extractSectionName(section)) {
       case 'Cadet':
@@ -111,6 +121,7 @@ class _AwardPageState extends State<AwardPage> {
     }
   }
 
+  // Get elective awards by section
   List<String> getElectiveAward(String section) {
     switch (extractSectionName(section)) {
       case 'Cadet':
@@ -146,6 +157,7 @@ class _AwardPageState extends State<AwardPage> {
     }
   }
 
+  // Assign a single award if not already assigned
   Future<void> _assignAward(String type, String name) async {
     if (_selectedUserId == null || _selectedYear == null || name.isEmpty) return;
     final alreadyHas = _userAward.any((a) => a['type'] == type && a['name'] == name);
@@ -163,6 +175,7 @@ class _AwardPageState extends State<AwardPage> {
     });
   }
 
+  // Assign all selected awards (service, core, elective)
   Future<void> _submitAward() async {
     if (_selectedUserId == null || _selectedYear == null) return;
     setState(() => _isSubmitting = true);
@@ -201,6 +214,7 @@ class _AwardPageState extends State<AwardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Dropdown to select a member
                   DropdownButtonFormField<String>(
                     hint: const Text('Select Member'),
                     value: _selectedUserId,
@@ -225,10 +239,13 @@ class _AwardPageState extends State<AwardPage> {
                     },
                   ),
                   const SizedBox(height: 12),
+
+                  // Award assignment dropdowns (if member is selected)
                   if (_selectedSection != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Year achieved
                         DropdownButtonFormField<int>(
                           hint: const Text('Select Year Achieved'),
                           value: _selectedYear,
@@ -239,6 +256,8 @@ class _AwardPageState extends State<AwardPage> {
                           onChanged: (val) => setState(() => _selectedYear = val),
                         ),
                         const SizedBox(height: 8),
+
+                        // Service award
                         DropdownButtonFormField<String>(
                           value: _selectedServiceAward,
                           hint: const Text('Service Award'),
@@ -248,6 +267,8 @@ class _AwardPageState extends State<AwardPage> {
                           onChanged: (val) => setState(() => _selectedServiceAward = val),
                         ),
                         const SizedBox(height: 8),
+
+                        // Core award
                         DropdownButtonFormField<String>(
                           value: _selectedCoreAward,
                           hint: const Text('Core Award'),
@@ -257,6 +278,8 @@ class _AwardPageState extends State<AwardPage> {
                           onChanged: (val) => setState(() => _selectedCoreAward = val),
                         ),
                         const SizedBox(height: 8),
+
+                        // Elective award
                         DropdownButtonFormField<String>(
                           value: _selectedElectiveAward,
                           hint: const Text('Elective Award'),
@@ -266,6 +289,8 @@ class _AwardPageState extends State<AwardPage> {
                           onChanged: (val) => setState(() => _selectedElectiveAward = val),
                         ),
                         const SizedBox(height: 12),
+
+                        // Submit button
                         ElevatedButton.icon(
                           onPressed: _isSubmitting ? null : _submitAward,
                           icon: const Icon(Icons.check),

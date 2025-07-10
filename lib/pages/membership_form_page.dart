@@ -1,3 +1,4 @@
+// Import necessary Flutter, Firebase, and utility packages
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/app_theme.dart';
 
+// Define a stateful widget for the Membership Form page
 class MembershipFormPage extends StatefulWidget {
   const MembershipFormPage({super.key});
 
@@ -16,7 +18,10 @@ class MembershipFormPage extends StatefulWidget {
 }
 
 class _MembershipFormPageState extends State<MembershipFormPage> {
+  // Key to validate form
   final _formKey = GlobalKey<FormState>();
+
+  // Controllers for all form input fields
   final Map<String, TextEditingController> _controllers = {
     'fullName': TextEditingController(),
     'icNumber': TextEditingController(),
@@ -33,6 +38,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     'emergencyEmail': TextEditingController(),
   };
 
+  // Additional form fields
   String? _section;
   String? _relationship;
   String? _receiptUrl;
@@ -41,6 +47,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
   String? _uploadedFileName;
   int? _uploadedFileSize;
 
+  // Initial setup: pre-fill user info and load draft
   @override
   void initState() {
     super.initState();
@@ -51,6 +58,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     });
   }
 
+  // Populate name and email from user profile
   Future<void> _populateUserInfo() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -64,6 +72,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     }
   }
 
+  // Load any previously saved draft data from Firestore
   Future<void> _loadDraftData() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -82,6 +91,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     }
   }
 
+  // Auto-save form data on field change
   Future<void> _autoSaveForm() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) return;
@@ -95,6 +105,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     await FirebaseFirestore.instance.collection('membership_forms').doc(uid).set(data, SetOptions(merge: true));
   }
 
+  // Pick and upload a file to Firebase Storage
   Future<void> _pickFile() async {
   try {
     final result = await FilePicker.platform.pickFiles(
@@ -115,7 +126,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
 
     setState(() => _isUploading = true); // start loading
 
-    // Delete previous receipt if any
+    // Delete previous uploaded receipt if any
     if (_receiptPath != null) {
       try {
         await FirebaseStorage.instance.ref(_receiptPath!).delete();
@@ -158,6 +169,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     }
   }
 
+  // Date and Year picker handlers for DOB and Year Joined fields
   Future<void> _selectDate(String fieldKey) async {
     final picked = await showDatePicker(
       context: context,
@@ -189,6 +201,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
     }
   }
 
+  // Final form submission logic
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate() &&
         _section != null &&
@@ -211,6 +224,7 @@ class _MembershipFormPageState extends State<MembershipFormPage> {
         'membershipFormSubmitted': true,
       });
 
+      // Redirect to dashboard based on role
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final role = userDoc.data()?['role'];
 

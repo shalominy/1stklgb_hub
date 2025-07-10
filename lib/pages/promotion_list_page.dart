@@ -10,7 +10,11 @@ class PromotionListPage extends StatefulWidget {
 
 class _PromotionListPageState extends State<PromotionListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Sections eligible for promotion display
   final List<String> _sections = ['Senior', 'Pioneer'];
+
+  // Mapping from short promotion name to braid colour description
   final Map<String, String> _braidColourMap = {
     'JLT': 'Purple Braid',
     'YLPT': 'Gold Braid + Black Lanyard',
@@ -18,16 +22,21 @@ class _PromotionListPageState extends State<PromotionListPage> {
     'YLGBSL': 'Blue Braid + Green Braid',
   };
 
+  // Stores promotion records grouped by section
   Map<String, List<Map<String, dynamic>>> _promotionsBySection = {};
+
+  // Maps user ID to full name from membership forms
   Map<String, String> _uidToFullName = {};
+  
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchPromotionsAndNames();
+    _fetchPromotionsAndNames(); // Fetch data on init
   }
 
+  // Retrieves all promotion records and member names
   Future<void> _fetchPromotionsAndNames() async {
     final promoSnapshot = await _firestore.collection('promotions').get();
     final promoData = promoSnapshot.docs.map((doc) => doc.data()).toList();
@@ -37,6 +46,7 @@ class _PromotionListPageState extends State<PromotionListPage> {
       for (var doc in memberSnapshot.docs) doc.id: doc.data()['fullName'] ?? ''
     };
 
+    // Group promotions by section
     Map<String, List<Map<String, dynamic>>> grouped = {
       'Senior': [],
       'Pioneer': [],
@@ -49,6 +59,7 @@ class _PromotionListPageState extends State<PromotionListPage> {
       }
     }
 
+    // Sort members alphabetically within each section
     for (final section in _sections) {
       grouped[section]!.sort((a, b) =>
           (a['name'] ?? '').toString().compareTo((b['name'] ?? '').toString()));
@@ -61,9 +72,11 @@ class _PromotionListPageState extends State<PromotionListPage> {
     });
   }
 
+  // Builds a section card showing grouped promotions and members
   Widget _buildPromotionGroup(String section, List<Map<String, dynamic>> promotions) {
     final grouped = <String, List<Map<String, dynamic>>>{};
 
+    // Group promotions by promotion type
     for (final promo in promotions) {
       final promotion = promo['promotion'] ?? 'Unknown';
       grouped.putIfAbsent(promotion, () => []).add(promo);
@@ -82,6 +95,8 @@ class _PromotionListPageState extends State<PromotionListPage> {
             ...grouped.entries.map((entry) {
               final promoName = entry.key;
               final braidDesc = _braidColourMap[promoName] ?? '';
+
+              // Generate member name list with year
               final memberNames = entry.value
                   .map((promo) {
                     final uid = promo['uid'];
@@ -90,7 +105,7 @@ class _PromotionListPageState extends State<PromotionListPage> {
                     return '$fullName ($year)';
                   })
                   .toList()
-                ..sort();
+                ..sort(); // Alphabetical order
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

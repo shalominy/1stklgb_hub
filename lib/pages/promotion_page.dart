@@ -12,17 +12,25 @@ class PromotionPage extends StatefulWidget {
 
 class _PromotionPageState extends State<PromotionPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // List of eligible members (Senior or Pioneer section)
   List<Map<String, dynamic>> _members = [];
+
+  // Tracks which promotion requirements are checked
   Map<String, bool> _requirements = {};
 
+  // Selected promotion info
   String? _selectedUserId;
   String? _selectedUserName;
   String? _selectedSection;
   String? _selectedPromotion;
   int? _selectedYear;
+
+  // Loading states
   bool _isLoading = true;
   bool _isSubmitting = false;
 
+  // Fixed promotion types
   final List<String> _promotions = [
     'JLT (Purple Braid)',
     'YLPT (Gold Braid + Black Lanyard)',
@@ -30,6 +38,7 @@ class _PromotionPageState extends State<PromotionPage> {
     'YLGBSL (Blue + Green Braids)'
   ];
 
+  // Checklist for each promotion
   final Map<String, List<String>> _promotionRequirements = {
     'JLT (Purple Braid)': [
       'Completed Training',
@@ -55,9 +64,10 @@ class _PromotionPageState extends State<PromotionPage> {
   @override
   void initState() {
     super.initState();
-    _fetchEligibleMembers();
+    _fetchEligibleMembers(); // Load eligible members on startup
   }
 
+  // Retrieves eligible users (Senior and Pioneer) and their full names
   Future<void> _fetchEligibleMembers() async {
     final users = await _firestore
         .collection('users')
@@ -89,6 +99,7 @@ class _PromotionPageState extends State<PromotionPage> {
     });
   }
 
+  // Submits promotion to Firestore
   Future<void> _assignPromotion() async {
     if (_selectedUserId == null || _selectedPromotion == null || _selectedYear == null) return;
     setState(() => _isSubmitting = true);
@@ -114,6 +125,7 @@ class _PromotionPageState extends State<PromotionPage> {
       appBar: AppBar(
         title: const Text('Assign Promotion'),
         actions: [
+          // Navigate to the Promotion List page
           IconButton(
             icon: const Icon(Icons.list),
             tooltip: 'View Promotion List',
@@ -133,6 +145,7 @@ class _PromotionPageState extends State<PromotionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Select member from dropdown
                   DropdownButtonFormField<String>(
                     hint: const Text('Select Member'),
                     value: _selectedUserId,
@@ -152,6 +165,7 @@ class _PromotionPageState extends State<PromotionPage> {
                     },
                   ),
                   const SizedBox(height: 12),
+                  // Select promotion type
                   DropdownButtonFormField<String>(
                     hint: const Text('Select Promotion Type'),
                     value: _selectedPromotion,
@@ -171,6 +185,8 @@ class _PromotionPageState extends State<PromotionPage> {
                     },
                   ),
                   const SizedBox(height: 8),
+
+                  // Show checklist of promotion requirements
                   if (_requirements.isNotEmpty)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,6 +201,8 @@ class _PromotionPageState extends State<PromotionPage> {
                       }).toList(),
                     ),
                   const SizedBox(height: 8),
+
+                  // Select promotion year
                   DropdownButtonFormField<int>(
                     hint: const Text('Select Year'),
                     value: _selectedYear,
@@ -195,6 +213,8 @@ class _PromotionPageState extends State<PromotionPage> {
                     onChanged: (val) => setState(() => _selectedYear = val),
                   ),
                   const SizedBox(height: 12),
+
+                  // Submit button to assign promotion
                   ElevatedButton.icon(
                     onPressed: _isSubmitting ? null : _assignPromotion,
                     icon: const Icon(Icons.check),

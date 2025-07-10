@@ -10,12 +10,14 @@ class AwardListPage extends StatefulWidget {
 
 class _AwardListPageState extends State<AwardListPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Sections and award types available in GB
   final List<String> _sections = ['Cadet', 'Junior', 'Senior', 'Pioneer'];
   final List<String> _awardTypes = ['Service', 'Core', 'Elective'];
 
-  String? _selectedType;
-  Map<String, Map<String, List<Map<String, dynamic>>>> _awardBySection = {};
-  Map<String, String> _uidToFullName = {};
+  String? _selectedType; // Filter dropdown for award type
+  Map<String, Map<String, List<Map<String, dynamic>>>> _awardBySection = {}; // Stores awards by section and type
+  Map<String, String> _uidToFullName = {}; // Maps user IDs to full names
   bool _isLoading = true;
 
   @override
@@ -24,6 +26,7 @@ class _AwardListPageState extends State<AwardListPage> {
     _fetchAwardsAndNames();
   }
 
+  // Fetches all awards and user names from Firestore
   Future<void> _fetchAwardsAndNames() async {
     final awardSnapshot = await _firestore.collection('awards').get();
     final awardData = awardSnapshot.docs.map((doc) => doc.data()).toList();
@@ -33,12 +36,13 @@ class _AwardListPageState extends State<AwardListPage> {
       for (var doc in memberSnapshot.docs) doc.id: doc.data()['fullName'] ?? ''
     };
 
+    // Initialise structure to store awards by section and type
     Map<String, Map<String, List<Map<String, dynamic>>>> result = {};
-
     for (final section in _sections) {
       result[section] = {'Service': [], 'Core': [], 'Elective': []};
     }
 
+    // Group awards into the appropriate section and type
     for (final award in awardData) {
       final section = (award['section'] as String?)?.split(' ').first ?? '';
       final type = award['type'] ?? '';
@@ -47,6 +51,7 @@ class _AwardListPageState extends State<AwardListPage> {
       }
     }
 
+    // Update state with results
     setState(() {
       _awardBySection = result;
       _uidToFullName = uidMap;
@@ -54,9 +59,11 @@ class _AwardListPageState extends State<AwardListPage> {
     });
   }
 
+  // Builds award group section: award name → list of recipients
   Widget _buildAwardGroup(String type, List<Map<String, dynamic>> awards) {
     final grouped = <String, List<Map<String, dynamic>>>{};
 
+    // Group awards by their name
     for (final award in awards) {
       final name = award['name'] ?? '';
       grouped.putIfAbsent(name, () => []).add(award);
@@ -70,6 +77,7 @@ class _AwardListPageState extends State<AwardListPage> {
             padding: const EdgeInsets.only(top: 8, bottom: 4),
             child: Text('$type Awards', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
+        // Render each award group with list of names (and years)
         ...grouped.entries.map((entry) {
           final awardName = entry.key;
           final memberNames = entry.value
@@ -80,7 +88,7 @@ class _AwardListPageState extends State<AwardListPage> {
                 return '$fullName ($year)';
               })
               .toList()
-            ..sort(); // Alphabetical
+            ..sort(); // Sort alphabetically
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,6 +116,7 @@ class _AwardListPageState extends State<AwardListPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Dropdown to filter by award type
                   DropdownButtonFormField<String>(
                     value: _selectedType,
                     hint: const Text('Filter by Award Type'),
@@ -120,6 +129,7 @@ class _AwardListPageState extends State<AwardListPage> {
                     onChanged: (val) => setState(() => _selectedType = val),
                   ),
                   const SizedBox(height: 16),
+                  // Display awards grouped by section and type
                   Expanded(
                     child: ListView(
                       children: _sections.map((section) {

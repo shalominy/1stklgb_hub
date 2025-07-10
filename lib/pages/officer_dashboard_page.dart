@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/logo_header.dart';
 
+/// Officer Dashboard Page - displays sidebar navigation and preview tiles
 class OfficerDashboardPage extends StatefulWidget {
   const OfficerDashboardPage({super.key});
 
@@ -13,8 +14,9 @@ class OfficerDashboardPage extends StatefulWidget {
 }
 
 class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
-  String userName = "Officer";
+  String userName = "Officer"; // default name
 
+  /// Fetch logged-in officer's name from Firestore
   @override
   void initState() {
     super.initState();
@@ -35,12 +37,13 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     }
   }
 
+  /// Main build method: sidebar + topbar + dashboard grid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          /// SIDE NAVIGATION
+          /// --- SIDE NAVIGATION BAR ---
           Container(
             width: 240,
             color: AppColors.darkBlue,
@@ -56,6 +59,8 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                   ),
                 ),
                 const SizedBox(height: 32),
+
+                // Sidebar Links
                 _navItem(Icons.dashboard, 'Dashboard', () {
                   Navigator.pushNamed(context, '/officer_dashboard');
                 }),
@@ -181,7 +186,10 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                     ),
                   ),
                 ),
+
                 const Spacer(),
+
+                // Profile menu at bottom
                 _navItemWithDropdown(
                   icon: Icons.person,
                   label: 'Profile',
@@ -200,11 +208,11 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
             ),
           ),
 
-          /// MAIN CONTENT + TOP NAV
+          /// --- MAIN CONTENT ---
           Expanded(
             child: Column(
               children: [
-                /// TOP BAR
+                /// --- TOP BAR with user avatar and name ---
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   height: 64,
@@ -261,7 +269,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                   ),
                 ),
 
-                /// DASHBOARD PREVIEW
+                /// --- DASHBOARD GRID VIEW (Main Tiles) ---
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
@@ -280,7 +288,9 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
                         _dashboardPreviewTile(
                           icon: Icons.calendar_today,
                           title: 'Calendar',
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.pushNamed(context, '/annual_calendar_overview');
+                          },
                         ),
                         _dashboardPreviewTile(
                           icon: Icons.school,
@@ -301,6 +311,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     );
   }
 
+  /// Reusable sidebar navigation item
   Widget _navItem(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
       onTap: onTap,
@@ -317,6 +328,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     );
   }
 
+  /// Profile menu with dropdown (bottom of sidebar)
   Widget _navItemWithDropdown({
     required IconData icon,
     required String label,
@@ -345,6 +357,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     );
   }
 
+  /// Reusable dropdown item for the Profile menu
   Widget _dropdownItem(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -358,6 +371,7 @@ class _OfficerDashboardPageState extends State<OfficerDashboardPage> {
     );
   }
 
+  /// Dashboard tile UI with icon and label
   Widget _dashboardPreviewTile({
     required IconData icon,
     required String title,

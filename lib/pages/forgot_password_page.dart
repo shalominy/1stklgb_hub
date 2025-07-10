@@ -1,8 +1,9 @@
+// Import Firebase and Flutter UI components
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
-import '../widgets/logo_header.dart';
+import '../theme/app_theme.dart';         // Custom app theme styles
+import '../widgets/logo_header.dart';     // Logo displayed at the top of the page
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -12,14 +13,19 @@ class ForgotPasswordPage extends StatefulWidget {
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+  // Global key for form validation
   final _formKey = GlobalKey<FormState>();
+
+  // Controller for the email text field
   final TextEditingController _emailController = TextEditingController();
 
+  // Validates the email format using regular expressions
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     return emailRegex.hasMatch(email);
   }
 
+  // Sends a password reset email using Firebase Authentication
   Future<void> _sendResetLink() async {
     if (_formKey.currentState!.validate()) {
       try {
@@ -28,6 +34,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         );
 
         if (!mounted) return;
+
+        // Display success message and return to login page
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Reset link sent! Check your email.')),
         );
@@ -51,6 +59,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             children: [
               const LogoHeader(),
               const SizedBox(height: 24),
+
+              // Application title
               const Text("1stKLGB Hub", style: AppTextStyles.heading1),
               const SizedBox(height: 8),
               const Text(
@@ -58,10 +68,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 style: AppTextStyles.subheading,
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 64),
               const Text("Forgot Password", style: AppTextStyles.heading2),
               const SizedBox(height: 24),
 
+              // Email input form
               Form(
                 key: _formKey,
                 child: FractionallySizedBox(
@@ -87,7 +99,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           return null;
                         },
                       ),
+
                       const SizedBox(height: 12),
+
+                      // Instruction message
                       const Text(
                         "Enter your email and we’ll send you a link to reset your password.",
                         style: AppTextStyles.paragraph,
@@ -97,7 +112,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 32),
+
+              // Send Reset Link button
               FractionallySizedBox(
                 widthFactor: 0.6,
                 child: ElevatedButton(

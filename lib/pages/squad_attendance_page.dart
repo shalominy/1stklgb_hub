@@ -14,19 +14,20 @@ class SquadAttendancePage extends StatefulWidget {
 
 class _SquadAttendancePageState extends State<SquadAttendancePage> {
   DateTime selectedDate = DateTime.now();
-  String? selectedSquad;
-  String? leaderUid;
+  String? selectedSquad; // The currently assigned squad
+  String? leaderUid; // UID of the assigned Squad Leader
   bool isSquadLeader = false;
 
   final List<String> attireOptions = ['A/10', 'B/7', 'C/5', 'D/0', 'Absent'];
-  Map<String, String> attireSelections = {};
+  Map<String, String> attireSelections = {}; // Stores selected attire per member
 
   @override
   void initState() {
     super.initState();
-    _initialiseUserSquad();
+    _initialiseUserSquad(); // Determine current user's squad and role
   }
 
+  /// Fetch the current user's squad and role to filter displayed members
   Future<void> _initialiseUserSquad() async {
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
     if (currentUid == null) return;
@@ -46,6 +47,7 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
     }
   }
 
+  /// Allow the user to pick a date to mark attendance
   Future<void> _selectDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -56,11 +58,12 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
-        attireSelections.clear();
+        attireSelections.clear(); // Reset selections on date change
       });
     }
   }
 
+  /// Fetch members belonging to the user's squad (includes Squad Leaders)
   Future<List<Map<String, dynamic>>> _fetchSquadMembers() async {
     if (selectedSquad == null) return [];
 
@@ -93,6 +96,7 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
     return members;
   }
 
+  /// Save the squad attendance data to Firestore
   Future<void> _submitAttendance() async {
     if (selectedSquad == null) return;
 
@@ -118,6 +122,7 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
     );
   }
 
+  /// Navigate to the full squad attendance history page
   void _navigateToAttendanceList() {
     Navigator.pushNamed(context, '/squad_attendance_list');
   }
@@ -143,6 +148,7 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
+                  /// Date and squad dropdown section
                   Row(
                     children: [
                       ElevatedButton.icon(
@@ -175,6 +181,8 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  
+                  /// Attendance list
                   Expanded(
                     child: FutureBuilder<List<Map<String, dynamic>>>(
                       future: _fetchSquadMembers(),
@@ -199,6 +207,7 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
                             final section = member['section'];
                             final role = member['role'] ?? 'Girl/Parent';
 
+                            // Add label for Squad Leader or Assistant Squad Leader
                             String displayName = name;
                             if (role == 'Squad Leader') {
                               if (uid == leaderUid) {
@@ -242,6 +251,8 @@ class _SquadAttendancePageState extends State<SquadAttendancePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
+                  /// Save button
                   ElevatedButton.icon(
                     onPressed: _submitAttendance,
                     icon: const Icon(Icons.save),
